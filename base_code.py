@@ -28,7 +28,7 @@ def largest_prime_factor(n: int):
   
   return prime_fact 
 
-def import_fbg_data(filepath: str):
+def import_fbg_data(filepath: str, strain_data = False):
   with open(filepath) as f:
     count = 0 
     for line in f:
@@ -38,18 +38,32 @@ def import_fbg_data(filepath: str):
         count = count + 1
 
   data = pd.read_csv(filepath, skiprows = count+1, sep='\t', header = None, error_bad_lines=False)
-  data = data.drop(data.columns[[2, 3, 4]], axis=1)
-  data = data.rename(columns={0: "Time", 1: "Number of Sensors"})
-  max_vals = data['Number of Sensors'].max()
+  if strain_data == False:
+    data = data.drop(data.columns[[2, 3, 4]], axis=1)
+    data = data.rename(columns={0: "Time", 1: "Number of Sensors"})
+    max_vals = data['Number of Sensors'].max()
  
-  hmm = {}
-  for i in range(0,max_vals):
-    hmm[5 + i] = f"{i}"
+    hmm = {}
+    for i in range(0,max_vals):
+      hmm[5 + i] = f"{i}"
    
-  data = data.rename(columns=hmm)
-  data = data.to_dict(orient='list')
+    data = data.rename(columns=hmm)
+    data = data.to_dict(orient='list')
 
-  return data
+    return data
+
+  else:
+    data = data.rename(columns={0: "Time"})
+    max_vals = data.keys()[-1]
+ 
+    hmm = {}
+    for i in range(0,max_vals):
+      hmm[i+1] = f"{i}"
+   
+    data = data.rename(columns=hmm)
+    data = data.to_dict(orient='list')
+
+    return data
 
 def import_data(filepath: str, convert_to_g = False):
   '''Loads any .txt data tab seperated, where the first line
